@@ -51,57 +51,30 @@ object Main extends App {
 
   // Create a Hashtable of timestamp and count
 
-  def isWarningLog(log: String): Int = {
+  def checkLogLevel(log: String, logLevel: String): Int = {
     val logSplit = log.split(" ")
     val logType = logSplit(2)
-    if (logType == "WARN") {
+    if (logType == logLevel) {
       return 1
     }
     return 0
   }
 
-  def isErrorLog(log: String): Int = {
-    val logSplit = log.split(" ")
-    val logType = logSplit(2)
-    if (logType == "ERROR") {
-      return 1
-    }
-    return 0
-  }
-
-  def isInfoLog(log: String): Int = {
-    val logSplit = log.split(" ")
-    val logType = logSplit(2)
-    if (logType == "INFO") {
-      return 1
-    }
-    return 0
-  }
-
-  def isDebugLog(log: String): Int = {
-    val logSplit = log.split(" ")
-    val logType = logSplit(2)
-    if (logType == "DEBUG") {
-      return 1
-    }
-    return 0
-  }
-
-  def isError = (log: String, prevCount: Int) => isErrorLog(log) + prevCount
-  def isWarning = (log: String, prevCount: Int) => isWarningLog(log) + prevCount
-  def isDebug = (log: String, prevCount: Int) => isDebugLog(log) + prevCount
-  def isInfo = (log: String, prevCount: Int) => isInfoLog(log) + prevCount
+  def isError = (log: String) => checkLogLevel(log, "ERROR")
+  def isWarning = (log: String) => checkLogLevel(log, "WARN")
+  def isDebug = (log: String) => checkLogLevel(log, "DEBUG")
+  def isInfo = (log: String) => checkLogLevel(log, "INFO")
   def combinePartitions = (p1: Int, p2: Int) => p1 + p2
 
   kafkaStream.foreachRDD { rdd =>
     if(!rdd.isEmpty()) {
       // Aggregation
-      val errorCount = rdd.map(record => record.value).map(isErrorLog).reduce(combinePartitions)
-      val warnCount = rdd.map(record => record.value).map(isWarningLog).reduce(combinePartitions)
-      val debugCount = rdd.map(record => record.value).map(isDebugLog).reduce(combinePartitions)
-      val infoCount = rdd.map(record => record.value).map(isInfoLog).reduce(combinePartitions)
+      val errorCount = rdd.map(record => record.value).map(isError).reduce(combinePartitions)
+      val warnCount = rdd.map(record => record.value).map(isWarning).reduce(combinePartitions)
+      val debugCount = rdd.map(record => record.value).map(isDebug).reduce(combinePartitions)
+      val infoCount = rdd.map(record => record.value).map(isInfo).reduce(combinePartitions)
 
-
+      // TODO: Send result to AWS Mail
     }
   }
 
