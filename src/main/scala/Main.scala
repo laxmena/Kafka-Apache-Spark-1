@@ -50,43 +50,60 @@ object Main extends App {
   val wordCounts = words.map(x => (x, 1)).reduceByKey(_ + _)
 
   // Create a Hashtable of timestamp and count
-  
-  // print resulting rdd
-  kafkaStream.foreachRDD(rdd => {
-    val errorList = new ListBuffer[String]()
-    val warnList = new ListBuffer[String]()
 
-    if (!rdd.isEmpty()) {
-      // Get each record and print it
-
-      // Create a mutable list
-      rdd.foreach(record => {
-        val logLevel = record.value().split(" ")(2)
-        print("|" + logLevel + "| - " + "\n")
-        if(logLevel == "ERROR") {
-          // Append to ListBuffer
-          print("Err here!\n")
-          errorList += logLevel
-        }
-        else if(logLevel == "WARN") {
-          print("Warnn here!\n")
-          warnList += logLevel
-        }
-        
-      })
-
-      print("SSSSSSMMMMMMMMMRRRRRRRRRRRIIIIIIIITTTTTTTTTHHHHHHHIIIIIII\n")
-      print(errorList.toString() + "\n")
-      // ListBuffer length
-      val errorListLength = errorList.toList
-      val warnListLength = warnList.toList
-      println(errorList)
-
-      println("Error: " + errorListLength.length + "\n")
-      println("Warn: " + warnListLength.length + "\n")
-      print("SSSSSSMMMMMMMMMRRRRRRRRRRRIIIIIIIITTTTTTTTTHHHHHHHIIIIIII\n")
+  def isWarningLog(log: String): Int = {
+    val logSplit = log.split(" ")
+    val logType = logSplit(2)
+    if (logType == "WARN") {
+      return 1
     }
-  })
+    return 0
+  }
+
+  def isErrorLog(log: String): Int = {
+    val logSplit = log.split(" ")
+    val logType = logSplit(2)
+    if (logType == "ERROR") {
+      return 1
+    }
+    return 0
+  }
+
+  def isInfoLog(log: String): Int = {
+    val logSplit = log.split(" ")
+    val logType = logSplit(2)
+    if (logType == "INFO") {
+      return 1
+    }
+    return 0
+  }
+
+  def isDebugLog(log: String): Int = {
+    val logSplit = log.split(" ")
+    val logType = logSplit(2)
+    if (logType == "DEBUG") {
+      return 1
+    }
+    return 0
+  }
+
+  def isError = (log: String, prevCount: Int) => isErrorLog(log) + prevCount
+  def isWarning = (log: String, prevCount: Int) => isWarningLog(log) + prevCount
+  def isDebug = (log: String, prevCount: Int) => isDebugLog(log) + prevCount
+  def isInfo = (log: String, prevCount: Int) => isInfoLog(log) + prevCount
+  def combinePartitions = (p1: Int, p2: Int) => p1 + p2
+
+  kafkaStream.foreachRDD { rdd =>
+    if(!rdd.isEmpty()) {
+      // Aggregation
+      val errorCount = rdd.map(record => record.value).map(isErrorLog).reduce(combinePartitions)
+      val warnCount = rdd.map(record => record.value).map(isWarningLog).reduce(combinePartitions)
+      val debugCount = rdd.map(record => record.value).map(isDebugLog).reduce(combinePartitions)
+      val infoCount = rdd.map(record => record.value).map(isInfoLog).reduce(combinePartitions)
+
+
+    }
+  }
 
   streamingContext.start()
   streamingContext.awaitTermination()
