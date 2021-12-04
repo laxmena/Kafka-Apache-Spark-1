@@ -13,9 +13,10 @@ import org.apache.spark.streaming.dstream.DStream
 import scala.collection.mutable.ListBuffer
 import java.util.UUID
 
-import HelperUtils.{Constants, SparkUtil, ObtainConfigReference}
+import HelperUtils.{Constants, SparkUtil, CreateLogger, ObtainConfigReference}
 import HelperUtils.Constants.{sparkConfig, kafkaConfig}
 
+class SparkAggregation
 object SparkAggregation extends App {
   val logger = CreateLogger(classOf[SparkAggregation])
 
