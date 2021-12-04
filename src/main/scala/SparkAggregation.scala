@@ -78,6 +78,7 @@ object SparkAggregation extends App {
 
       // TODO: Send result to AWS Mail
       logger.info("Sending result to AWS Mail")
+      HelperUtils.AwsEmailService.email(errorCount)
 
     }
   }
