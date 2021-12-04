@@ -17,7 +17,13 @@ import scala.collection.JavaConverters._
 
 class AwsEmailService
 object AwsEmailService {
-  def email(a: Int): Unit = {
+  /**
+   * This method sends email to list of destination email addresses
+   * with number of error and warn logs.
+   * @param errors - the number of error logs present
+   * @param warn - the number of warn logs present
+   */
+  def email(errors: Int,warn :Int): Unit = {
 
   val log = Logger.getLogger(classOf[AwsEmailService])
 
@@ -30,9 +36,9 @@ object AwsEmailService {
 
   // The subject line for the email.
   val email_subject = config.getString("emailServiceConfig.email_subject")
-
+  val msg = "\n Received "+errors.toString+" error logs and "+warn.toString+ " warn logs"
   // The body for the email.
-  val message_body: Body = new Body(new Content(config.getString("emailServiceConfig.message_body")+a.toString))
+  val message_body: Body = new Body(new Content(config.getString("emailServiceConfig.message_body")+msg))
   log.info("Subject body added to Body")
 
   // destination email address
@@ -52,15 +58,20 @@ object AwsEmailService {
   //@throws[IOException]
 
     try {
+      // Customer is the client here
       val customer = AmazonSimpleEmailServiceClientBuilder.standard.withRegion(Regions.US_EAST_2).build()
+      /*Create an email request with parameters
+      * source email
+      * list of destination email
+      * message to be sent */
       val request = new SendEmailRequest(Source_EmailAddress, each_destination_email, message)
       customer.sendEmail(request)
-      log.info("Sending Email to the customers")
-      System.out.println("Email is sent successfully")
+      log.info("Sending Email")
+
     } catch {
       case exception: Exception =>
-        log.error("Failed - Email not sent")
-        System.out.println("Failed - Email not sent . Error message: " + exception.getMessage)
+        //If the email was not sent due to some error print the error
+        log.error("Failed - Email not sent" + exception.getMessage)
     }
   }
 }

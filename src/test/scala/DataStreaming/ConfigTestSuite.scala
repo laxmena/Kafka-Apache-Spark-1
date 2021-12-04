@@ -1,4 +1,5 @@
-package LogProcessor
+package DataStreaming
+
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -8,6 +9,7 @@ import HelperUtils.Constants.{sparkConfig, kafkaConfig}
 import com.typesafe.config.{Config, ConfigFactory}
 
 class ConfigTestSuite extends AnyFlatSpec with Matchers {
+
   behavior of "Spark Config Test"
   // App Config Tests
   it should "contain Spark app name" in {

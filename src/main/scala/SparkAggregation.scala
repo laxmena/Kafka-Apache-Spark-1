@@ -68,22 +68,19 @@ object SparkAggregation extends App {
       
       logger.info("Aggregated counts: E:" + errorCount + " W:" + warnCount + " D:" + debugCount + " I:" + infoCount)
 
-      // TODO: Remove this code AWS Mail is implemented
-      println("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSMMMMMMMMMMMMMMMMMMMMRRRRRRRRRRRRR")
-      println("Error Count: " + errorCount)
-      println("Warning Count: " + warnCount)
-      println("Debug Count: " + debugCount)
-      println("Info Count: " + infoCount)
-      println("IIIIIIIIIIIIIIIIIIIIIITTTTTTTTTTTTTHHHHHHHHHHHHHIIIIIIIIIIIIIIII")
 
-      // TODO: Send result to AWS Mail
+//      if (errorCount>threshold){
+//        HelperUtils.AwsEmailService.email(errorCount,warnCount)
+//      }
       logger.info("Sending result to AWS Mail")
-      HelperUtils.AwsEmailService.email(errorCount)
+      HelperUtils.AwsEmailService.email(errorCount,warnCount)
 
     }
   }
 
   // Start the Streaming Context.
+
+
   logger.info("Starting Spark Streaming Context")
   streamingContext.start()
   streamingContext.awaitTermination()
