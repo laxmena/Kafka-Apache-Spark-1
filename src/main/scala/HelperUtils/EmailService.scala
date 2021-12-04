@@ -15,59 +15,52 @@ import com.typesafe.config.ConfigFactory
 
 import scala.collection.JavaConverters._
 
-
+class AwsEmailService
 object AwsEmailService {
+  def email(a: Int): Unit = {
 
-  // To print log messages in console
-  //val log = Logger.getLogger(classOf[SparkConfig])
+  val log = Logger.getLogger(classOf[AwsEmailService])
 
-  // Get the config values from application.conf in resources
-  val config = ConfigFactory.load("Application.conf")
+  // Load configuration values from Application config
+  val config = ConfigFactory.load("application.conf")
 
-  //log.info("Set the required parameters for AWS email service")
-  // The email address verified in AWS account
-//  val DefaultSourceEmailAddress:String = config.getString("sourceAddress")
-   val DefaultSourceEmailAddress:String = "smrithibalki@gmail.com"
-  //val targetAddressList: List[String] = List(config.getString("targetAddressList"))
-  val targetAddressList: List[String] =  List("sbalki3@uic.edu")
+
+  val Source_EmailAddress : String = config.getString("emailServiceConfig.source_email")
+  val DestinationList_EmailAddress: List[String] = List(config.getString("emailServiceConfig.addressList"))
 
   // The subject line for the email.
-  val subject = "SPark Notification"
-  //val subject = config.getString("subject")
+  val email_subject = config.getString("emailServiceConfig.email_subject")
 
   // The body for the email.
-  val messageBody: Body = new Body(new Content("Auto genearted mail"))
-//  val messageBody: Body = new Body(new Content(config.getString("subjectBody")))
+  val message_body: Body = new Body(new Content(config.getString("emailServiceConfig.message_body")+a.toString))
+  log.info("Subject body added to Body")
 
-  //log.info("Subject body added to Body")
   // destination email address
-  val destination:Destination = new Destination(targetAddressList.asJava)
-  //log.info("Target address list added to destination")
+  val each_destination_email:Destination = new Destination(DestinationList_EmailAddress.asJava)
+  log.info("Target address list added to destination")
 
   val message:Message =
-    new Message(new Content(subject), messageBody)
+    new Message(new Content(email_subject), message_body)
 
   /**
-   * A handle on SES with credentials fetched from the environment variables
+   * A handle on Simple Email Service with credentials fetched from the environment variables
    *
    *     AWS_ACCESS_KEY_ID
    *     AWS_SECRET_KEY
    */
-//    protected lazy val simpleEmailService:AmazonSimpleEmailServiceClient =
-//      new AmazonSimpleEmailServiceClient(new EnvironmentVariableCredentialsProvider());
 
-  @throws[IOException]
-  def main(args: Array[String]): Unit = {
+  //@throws[IOException]
+
     try {
-      val client = AmazonSimpleEmailServiceClientBuilder.standard.withRegion(Regions.US_EAST_2).build()
-      val request = new SendEmailRequest(DefaultSourceEmailAddress, destination, message)
-      client.sendEmail(request)
-      //log.info("Sending Email to the client")
-      System.out.println("Email sent")
+      val customer = AmazonSimpleEmailServiceClientBuilder.standard.withRegion(Regions.US_EAST_2).build()
+      val request = new SendEmailRequest(Source_EmailAddress, each_destination_email, message)
+      customer.sendEmail(request)
+      log.info("Sending Email to the customers")
+      System.out.println("Email is sent successfully")
     } catch {
-      case ex: Exception =>
-        //log.error("Sending Email failed")
-        System.out.println("The email was not sent. Error message: " + ex.getMessage)
+      case exception: Exception =>
+        log.error("Failed - Email not sent")
+        System.out.println("Failed - Email not sent . Error message: " + exception.getMessage)
     }
   }
 }
