@@ -15,16 +15,19 @@ val akkaKafkaStreamingVersion = "1.0.1"
 
 libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
 
+dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.7.1"
+
 // Include Akka
 libraryDependencies += "com.typesafe.akka" %% "akka-stream" % akkaVersion
 libraryDependencies += "com.typesafe.akka" %% "akka-stream-kafka" % akkaKafkaStreamingVersion
 libraryDependencies += "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
 
 // Include dependencies for Spark-Kafka
-libraryDependencies += "org.apache.spark" %% "spark-core" % sparkVersion
-libraryDependencies += "org.apache.spark" %% "spark-sql" % sparkVersion
-libraryDependencies += "org.apache.spark" %% "spark-streaming" % sparkVersion
-libraryDependencies += "org.apache.spark" %% "spark-streaming-kafka-0-10" % sparkVersion
+libraryDependencies += "org.apache.spark" %% "spark-core" % "2.4.4"
+libraryDependencies += "org.apache.spark" %% "spark-sql" % "2.4.4"
+libraryDependencies += "org.apache.spark" %% "spark-streaming" % "2.4.4"
+libraryDependencies += "org.apache.spark" %% "spark-streaming-kafka-0-10" % "2.4.4"
+
 libraryDependencies += "com.amazonaws" % "aws-java-sdk" % awsJavaSdkVersion
 libraryDependencies += "com.amazonaws" % "aws-java-sdk-s3" % awsJavaSdkVersion
 
